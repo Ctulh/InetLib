@@ -10,7 +10,7 @@ set(HEADERS ${INCLUDE_PATH}/HttpResponseBuilder.hpp
 set(SOURCES HttpResponseBuilder.cpp
             HttpRequestBuilder.cpp
             HttpBuilder.cpp
-            HttpMethod.cpp)
+            HttpMethod.cpp ../../include/Inet/Strategy.hpp ../../include/Inet/TcpConnectionSSL.hpp)
 
 add_library(${LIB_NAME} ${HEADERS} ${SOURCES})
 

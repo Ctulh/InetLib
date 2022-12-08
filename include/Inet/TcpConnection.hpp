@@ -15,17 +15,16 @@ public:
     TcpConnection(InetAddress const& inetAddress);
     TcpConnection(int fd);
     TcpConnection(std::shared_ptr<Socket> socket);
-    ~TcpConnection();
+    virtual ~TcpConnection();
 public:
-    void send(const char* msg, std::size_t len);
-    void recv(std::string& msg);
+    virtual void send(const char* msg, std::size_t len);
+    virtual void recv(std::string& msg);
 
     int fd() const;
     void shutdown();
 
     bool isConnected() const;
-public:
-private:
+protected:
     bool m_connected;
     std::shared_ptr<Socket> m_socket;
 };

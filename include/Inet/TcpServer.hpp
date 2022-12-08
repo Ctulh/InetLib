@@ -8,9 +8,9 @@
 #include "TcpConnection.hpp"
 #include "ConnectionAcceptor.hpp"
 #include "SocketReader/SocketReader.hpp"
+#include "Strategy.hpp"
 #include "SocketPoller.hpp"
 #include "callbacks.hpp"
-#include "Strategy/HttpStrategy.hpp"
 
 #include <iostream>
 #include <atomic>
@@ -21,14 +21,14 @@
 
 class TcpServer {
 public:
-    TcpServer(const InetAddress& inet, HttpStrategy strategy):
+    TcpServer(const InetAddress& inet, Strategy* strategy):
                                   m_inetAddress(inet), m_strategy(std::move(strategy)) {
         m_connectionAcceptor = std::make_unique<ConnectionAcceptor>(m_inetAddress);
         m_connectionAcceptor->setReceiveConnectionCallback(std::bind(&TcpServer::acceptConnectionCallback, this, std::placeholders::_1));
         m_socketPoller = std::make_unique<SocketPoller>(10, 100);
-        m_socketPoller->setReceiveMessageCallback([this](TcpConnectionPtr connection, SocketReaderPtr socketReader){this->m_strategy.onReceiveMessage(connection, socketReader);});
+        m_socketPoller->setReceiveMessageCallback([this](TcpConnectionPtr connection, SocketReaderPtr socketReader){this->m_strategy->onReceiveMessage(connection, socketReader);});
         m_socketPoller->setCloseConnectionCallback([this](TcpConnectionPtr connection){this->connectionClosed(connection);});
-        m_strategy.setCloseConnection([this](TcpConnectionPtr const& conn) {this->connectionClosed(conn);});
+        m_strategy->setCloseConnectionCallback([this](TcpConnectionPtr const& conn) {this->connectionClosed(conn);});
     }
 
     ~TcpServer() {
@@ -85,7 +85,7 @@ private:
     }
 
 private:
-    HttpStrategy m_strategy;
+    Strategy* m_strategy;
     std::atomic_flag m_isRunning;
     std::atomic_flag m_isCanPoll;
     std::unique_ptr<ConnectionAcceptor> m_connectionAcceptor;
