@@ -86,3 +86,15 @@ void HttpBuilder::setBody(std::string_view body) {
 void HttpBuilder::addCookie(HttpCookie const& cookie) {
     m_httpMessage.cookies.push_back(cookie);
 }
+
+void HttpBuilder::setAcceptEncoding(std::string_view acceptEncoding) {
+    m_httpMessage.acceptEncoding = acceptEncoding;
+}
+
+void HttpBuilder::setAccept(std::string_view accept) {
+    m_httpMessage.accept = accept;
+}
+
+void HttpBuilder::setHost(std::string_view host) {
+    m_httpMessage.host = host;
+}

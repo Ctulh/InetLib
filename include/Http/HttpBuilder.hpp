@@ -25,7 +25,10 @@ public:
     virtual void setAcceptLanguage(std::string_view acceptLanguage);
     virtual void setStatusCode(int statusCode);
     virtual void setDateTime(std::string_view dateTime);
+    virtual void setHost(std::string_view host);
     virtual void setCurrentDateTime();
+    virtual void setAcceptEncoding(std::string_view acceptEncoding);
+    virtual void setAccept(std::string_view accept);
     virtual void setLastModifiedDateTime(std::string_view lastModifiedDateTime);
     virtual void setServer(std::string_view server);
     virtual void setContentType(std::string_view contentType);

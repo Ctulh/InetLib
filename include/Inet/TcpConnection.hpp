@@ -18,7 +18,6 @@ public:
     virtual ~TcpConnection();
 public:
     virtual void send(const char* msg, std::size_t len);
-    virtual void recv(std::string& msg);
 
     int fd() const;
     void shutdown();
