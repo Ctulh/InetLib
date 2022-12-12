@@ -7,4 +7,4 @@ set(SOURCE SocketReader.cpp)
 
 add_library(${LIB_NAME} ${HEADER} ${SOURCE})
 
-target_include_directories(${LIB_NAME} PUBLIC ${INCLUDE_PATH})
+target_include_directories(${LIB_NAME} PUBLIC ${INCLUDE_PATH} ${PROJECT_SOURCE_DIR}/include)

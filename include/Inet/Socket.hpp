@@ -7,6 +7,9 @@
 #include "InetAddress.hpp"
 #include <memory>
 
+class Socket;
+using SocketPtr = std::shared_ptr<Socket>;
+
 enum SOCK_TYPE {
     TCP = 1,
     UDP = 2
@@ -31,6 +34,10 @@ public:
     int accept();
 
     int fd() const;
+
+    int recv(char* msg, int len) const;
+    int recv(std::string& msg) const;
+    int send(const char* msg, int len) const;
 
     bool connect();
     bool isConnected() const;

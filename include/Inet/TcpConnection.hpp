@@ -7,7 +7,6 @@
 #include "InetAddress.hpp"
 #include "callbacks.hpp"
 #include "Socket.hpp"
-#include <cstdio>
 #include <memory>
 
 class TcpConnection {
@@ -17,7 +16,10 @@ public:
     TcpConnection(std::shared_ptr<Socket> socket);
     virtual ~TcpConnection();
 public:
-    virtual void send(const char* msg, std::size_t len);
+    virtual int send(const char* msg, std::size_t len) const;
+    virtual int send(std::string_view msg) const;
+    virtual int recv(char* msg, std::size_t len) const;
+    virtual int recv(std::string& msg) const;
 
     int fd() const;
     void shutdown();
@@ -25,5 +27,5 @@ public:
     bool isConnected() const;
 protected:
     bool m_connected;
-    std::shared_ptr<Socket> m_socket;
+    SocketPtr m_socket;
 };

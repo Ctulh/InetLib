@@ -38,7 +38,7 @@ void SocketPoller::poll() {
     for(int i = 0; i < readyAmount; i++) {
         if(m_epollEvents[i].events & EPOLLIN) {
             SocketReaderPtr socketReader = std::make_shared<SocketReader>();
-            auto result = socketReader->read(m_epollEvents[i].data.fd);
+            auto result = socketReader->read(m_connections[m_epollEvents[i].data.fd]);
             if(result == READ_STATUS::GOT_MESSAGE)
                 m_receiveMessageCallback(m_connections.at(m_epollEvents[i].data.fd), socketReader);
         }

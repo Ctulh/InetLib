@@ -5,6 +5,7 @@
 #include "TcpConnection.hpp"
 #include <iostream>
 #include <unistd.h>
+#include <cstring>
 
 TcpConnection::TcpConnection(std::shared_ptr<Socket> socket) {
     m_socket = std::move(socket);
@@ -18,9 +19,20 @@ TcpConnection::TcpConnection(int fd) {
     m_connected = true;
 }
 
-void TcpConnection::send(const char *msg, std::size_t len) {
-    auto result = write(m_socket->fd(), msg, len);
-    std::cout << "Sent: " << result << '\n';
+int TcpConnection::send(const char *msg, std::size_t len) const {
+    return m_socket->send(msg, len);
+}
+
+int TcpConnection::send(std::string_view msg) const {
+    return m_socket->send(msg.data(), msg.size());
+}
+
+int TcpConnection::recv(char *msg, std::size_t len) const {
+    return m_socket->recv(msg, len);
+}
+
+int TcpConnection::recv(std::string &msg) const {
+    return m_socket->recv(msg);
 }
 
 TcpConnection::TcpConnection(const InetAddress &inetAddress) {

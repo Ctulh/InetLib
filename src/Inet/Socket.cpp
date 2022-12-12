@@ -4,7 +4,14 @@
 
 #include "Socket.hpp"
 #include <string>
+#include <iostream>
+#include <cstring>
 #include <sys/fcntl.h>
+
+namespace {
+    constexpr int BUFFER_SIZE = 1024;
+}
+
 
 Socket::Socket(int fd) {
     m_socketFd = fd;
@@ -40,6 +47,37 @@ bool Socket::connect() {
         return true;
     }
     return false;
+}
+
+int Socket::recv(char *msg, int len) const {
+    return ::read(m_socketFd, msg, len);
+}
+
+int Socket::recv(std::string &msg) const {
+    int result;
+    for(;;) {
+        char buf[BUFFER_SIZE];
+        result = ::read(m_socketFd, buf, BUFFER_SIZE);
+        if(result == BUFFER_SIZE) {
+            msg += buf;
+            continue;
+        }
+        else if(result == 0)
+            return result;
+        else if(result == -1) {
+            std::cout << std::strerror(errno) << '\n';
+            return result;
+        }
+        else if(result < BUFFER_SIZE) {
+            msg += buf;
+            break;
+        }
+    }
+    return result;
+}
+
+int Socket::send(const char *msg, int len) const {
+    return ::write(m_socketFd, msg, len);
 }
 
 int Socket::fd() const {
