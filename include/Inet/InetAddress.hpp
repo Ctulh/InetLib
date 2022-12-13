@@ -16,6 +16,7 @@
 class InetAddress {
 public:
     InetAddress(std::string_view ip, uint16_t port);
+    InetAddress(uint16_t port);
     InetAddress(const sockaddr_in& addr);
 
 public:

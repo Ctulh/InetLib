@@ -16,12 +16,17 @@
 
 class SocketSSL: public ISocket {
 public:
-    explicit SocketSSL(int fd);
-
     explicit SocketSSL(const InetAddress& inetAddress)
     {
         m_inetAddress = std::make_unique<InetAddress>(inetAddress);
-        m_socketFd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+        m_socketFd = socket(AF_INET, SOCK_STREAM, 0);
+        m_ctx = initCtx();
+        int on = 1;
+        setsockopt ( m_socketFd, SOL_SOCKET, SO_REUSEADDR, ( const char* ) &on, sizeof ( on ) );
+
+        m_ssl = SSL_new(m_ctx);
+        SSL_set_fd(m_ssl, m_socketFd);
+
     }
     ~SocketSSL();
 

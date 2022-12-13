@@ -4,13 +4,22 @@
 
 #include "InetAddress.hpp"
 #include <cstring>
+#include <netdb.h>
 
-InetAddress::InetAddress(std::string_view ip, uint16_t port) {
+InetAddress::InetAddress(uint16_t port) {
     memset(&m_addr, 0, sizeof(m_addr));
     m_addr.sin_family = AF_INET;
-    m_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     m_addr.sin_port = htons(port);
-    //m_addr.sin_addr.s_addr = inet_addr(ip.data());
+    m_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+}
+
+InetAddress::InetAddress(std::string_view host, uint16_t port) {
+    memset(&m_addr, 0, sizeof(m_addr));
+    m_addr.sin_family = AF_INET;
+    m_addr.sin_port = htons(port);
+    m_addr.sin_addr.s_addr = inet_addr(host.data());
+    //m_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    //inet_pton ( AF_INET, ip.data(), &m_addr.sin_addr );
 }
 
 InetAddress::InetAddress(const sockaddr_in &addr): m_addr(addr) {}

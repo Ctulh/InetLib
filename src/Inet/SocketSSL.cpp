@@ -18,7 +18,7 @@ int SocketSSL::connect() {
     auto result = ::connect(m_socketFd, addr, sizeof(*addr));
     if(result != 0)
         std::cout << "Error socketSSL connect";
-    m_ctx = initCtx();
+    return result;
 }
 
 int SocketSSL::bind() {
@@ -31,7 +31,7 @@ int SocketSSL::listen() {
 
 int SocketSSL::accept() {
     socklen_t addrLength = sizeof(sockaddr_in);
-    return ::accept ( m_socketFd, (sockaddr*)m_inetAddress->getSockAddr(), &addrLength);
+    return ::SSL_accept(m_ssl);
 }
 
 int SocketSSL::fd() const {
@@ -65,7 +65,8 @@ int SocketSSL::recv(char *msg, int len) const {
 }
 
 int SocketSSL::send(const char *msg, int len) const {
-    return SSL_write(m_ssl, msg, len);
+    auto result = SSL_write(m_ssl, msg, len);
+    return result;
 }
 
 void SocketSSL::shutDown() {
@@ -74,7 +75,6 @@ void SocketSSL::shutDown() {
 
 SSL_CTX *SocketSSL::initCtx() {
     std::call_once(m_initializationFlag, [](){
-        SSL_library_init();
         OpenSSL_add_all_algorithms();
         SSL_load_error_strings();
     });
@@ -88,6 +88,7 @@ SSL_CTX *SocketSSL::initCtx() {
         ERR_print_errors_fp(stderr);
         abort();
     }
+
     return ctx;
 }
 
