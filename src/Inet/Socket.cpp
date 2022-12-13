@@ -30,12 +30,8 @@ int Socket::listen() {
     return ::listen(m_socketFd, SOMAXCONN);
 }
 
-bool Socket::bind() {
-    int bind_return = ::bind(m_socketFd, (sockaddr*)m_inetAddress->getSockAddr(), sizeof(sockaddr));
-    if(bind_return == -1) {
-        return false;
-    }
-    return true;
+int Socket::bind() {
+    return ::bind(m_socketFd, (sockaddr*)m_inetAddress->getSockAddr(), sizeof(sockaddr));
 }
 
 bool Socket::connect() {

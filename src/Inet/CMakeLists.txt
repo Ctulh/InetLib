@@ -14,6 +14,7 @@ set(HEADERS ${INCLUDE_DIR}/InetAddress.hpp
 
 set(SOURCES InetAddress.cpp
             Socket.cpp
+            SocketSSL.cpp
             TcpConnection.cpp
             ConnectionAcceptor.cpp
             SocketPoller.cpp

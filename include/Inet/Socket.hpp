@@ -6,6 +6,7 @@
 
 #include "InetAddress.hpp"
 #include <memory>
+#include "ISocket.hpp"
 
 class Socket;
 using SocketPtr = std::shared_ptr<Socket>;
@@ -15,7 +16,7 @@ enum SOCK_TYPE {
     UDP = 2
 };
 
-class Socket {
+class Socket: public ISocket {
 public:
     explicit Socket(int fd);
 
@@ -29,22 +30,22 @@ public:
     virtual ~Socket();
 
 public:
-    bool bind();
-    int listen();
-    int accept();
+    int bind() override;
+    int listen() override;
+    int accept() override;
 
-    int fd() const;
+    int fd() const override;
 
-    int recv(char* msg, int len) const;
-    int recv(std::string& msg) const;
-    int send(const char* msg, int len) const;
+    int recv(char* msg, int len) const override;
+    int recv(std::string& msg) const override;
+    int send(const char* msg, int len) const override;
 
     bool connect();
     bool isConnected() const;
 
     bool setNonBlocking() const;
 
-    void shutDown();
+    void shutDown() override;
 private:
     bool m_isConnected;
     int m_socketFd;
