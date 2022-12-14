@@ -11,6 +11,7 @@ namespace {
 SocketSSL::~SocketSSL() {
     SSL_CTX_free(m_ctx);
     SSL_free(m_ssl);
+    SSL_shutdown(m_ssl);
 }
 
 int SocketSSL::connect() {
@@ -18,6 +19,8 @@ int SocketSSL::connect() {
     auto result = ::connect(m_socketFd, addr, sizeof(*addr));
     if(result != 0)
         std::cout << "Error socketSSL connect";
+    if ( SSL_connect(m_ssl) == -1 )   /* perform the connection */
+        ERR_print_errors_fp(stderr);
     return result;
 }
 
@@ -79,16 +82,15 @@ SSL_CTX *SocketSSL::initCtx() {
         SSL_load_error_strings();
     });
 
-    SSL_METHOD const* method;
     SSL_CTX *ctx;
-    method = TLS_client_method();  /* Create new client-method instance */
-    ctx = SSL_CTX_new(method);   /* Create new context */
+    ctx = SSL_CTX_new(SSLv23_client_method());   /* Create new context */
     if ( ctx == NULL )
     {
         ERR_print_errors_fp(stderr);
         abort();
     }
 
+    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
     return ctx;
 }
 

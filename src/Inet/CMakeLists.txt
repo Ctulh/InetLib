@@ -20,11 +20,14 @@ set(SOURCES InetAddress.cpp
             SocketPoller.cpp
         )
 
-find_package(OpenSSL REQUIRED)
 
 add_library(${LIB_NAME} ${HEADERS} ${SOURCES})
 
 target_include_directories(${LIB_NAME} PUBLIC ${INCLUDE_DIR}
-                                              ${PROJECT_SOURCE_DIR}/include)
+                                              ${PROJECT_SOURCE_DIR}/include
+                                                /usr/local/ssl/include
+                                                )
 
-target_link_libraries(${LIB_NAME} PRIVATE ${OPENSSL_LIBRARIES})
+
+
+target_link_libraries(${LIB_NAME} PRIVATE "/usr/lib64/libssl.so" "/usr/lib64/libcrypto.so")
