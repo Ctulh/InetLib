@@ -15,15 +15,7 @@
 
 class SocketSSL: public ISocket {
 public:
-    explicit SocketSSL(const InetAddress& inetAddress)
-    {
-        m_inetAddress = std::make_unique<InetAddress>(inetAddress);
-        m_socketFd = socket(AF_INET, SOCK_STREAM, 0);
-        m_ctx = initCtx();
-
-        m_ssl = SSL_new(m_ctx);
-        SSL_set_fd(m_ssl, m_socketFd);
-    }
+    explicit SocketSSL(const InetAddress& inetAddress);
     ~SocketSSL();
 
 public:

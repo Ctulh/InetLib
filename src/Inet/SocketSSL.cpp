@@ -8,17 +8,29 @@ namespace {
     constexpr int BUFFER_SIZE = 1024;
 }
 
+SocketSSL::SocketSSL(const InetAddress &inetAddress) {
+    m_inetAddress = std::make_unique<InetAddress>(inetAddress);
+    m_socketFd = socket(AF_INET, SOCK_STREAM, 0);
+    m_ctx = initCtx();
+
+    m_ssl = SSL_new(m_ctx);
+}
+
 SocketSSL::~SocketSSL() {
-    SSL_CTX_free(m_ctx);
     SSL_free(m_ssl);
-    SSL_shutdown(m_ssl);
+    SSL_CTX_free(m_ctx);
 }
 
 int SocketSSL::connect() {
     auto addr = m_inetAddress->getSockAddr();
     auto result = ::connect(m_socketFd, addr, sizeof(*addr));
-    if(result != 0)
+    if(result != 0) {
         std::cout << "Error socketSSL connect";
+        return -1;
+    }
+
+    SSL_set_fd(m_ssl, m_socketFd);
+
     if ( SSL_connect(m_ssl) == -1 )   /* perform the connection */
         ERR_print_errors_fp(stderr);
     return result;
@@ -78,7 +90,10 @@ void SocketSSL::shutDown() {
 
 SSL_CTX *SocketSSL::initCtx() {
     std::call_once(m_initializationFlag, [](){
+        SSL_library_init();
         OpenSSL_add_all_algorithms();
+        CONF_F_DEF_LOAD_BIO;
+        ERR_load_crypto_strings();
         SSL_load_error_strings();
     });
 
@@ -90,7 +105,8 @@ SSL_CTX *SocketSSL::initCtx() {
         abort();
     }
 
-    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
+    SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2);
+    //SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
     return ctx;
 }
 
