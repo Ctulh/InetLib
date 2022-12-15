@@ -43,27 +43,30 @@ int Socket::recv(char *msg, int len) const {
 }
 
 int Socket::recv(std::string &msg) const {
-    int result;
+    int total;
 
     for(;;) {
+        int result;
         char buf[BUFFER_SIZE];
         result = read(m_socketFd, buf, BUFFER_SIZE);
         if(result == BUFFER_SIZE) {
+            total += result;
             msg += buf;
             continue;
         }
         else if(result == 0)
-            return result;
+            return total;
         else if(result == -1) {
             std::cout << std::strerror(errno) << '\n';
-            return result;
+            return total;
         }
         else if(result < BUFFER_SIZE) {
+            total += result;
             msg += buf;
             break;
         }
     }
-    return result;
+    return total;
 }
 
 int Socket::read(int fd, char *buf, int bufSize) const{

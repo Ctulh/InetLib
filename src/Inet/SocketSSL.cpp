@@ -54,25 +54,29 @@ int SocketSSL::fd() const {
 }
 
 int SocketSSL::recv(std::string &msg) const {
+    int total;
     int result;
+
     for(;;) {
         char buf[BUFFER_SIZE];
         result = SSL_read(m_ssl, buf, BUFFER_SIZE);
         if(result == BUFFER_SIZE) {
+            total += result;
             msg += buf;
             continue;
         }
         else if(result == 0)
-            return result;
+            return total;
         else if(result == -1) {
-            return result;
+            return total;
         }
         else if(result < BUFFER_SIZE) {
+            total += result;
             msg += buf;
             break;
         }
     }
-    return result;
+    return total;
 }
 
 int SocketSSL::recv(char *msg, int len) const {
