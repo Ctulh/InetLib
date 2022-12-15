@@ -11,7 +11,7 @@
 class Socket;
 using SocketPtr = std::shared_ptr<Socket>;
 
-enum SOCK_TYPE {
+enum class SOCK_TYPE {
     TCP = 1,
     UDP = 2
 };
@@ -20,11 +20,11 @@ class Socket: public ISocket {
 public:
     explicit Socket(int fd);
 
-    explicit Socket(const InetAddress& inetAddress, SOCK_TYPE sockType)
+    explicit Socket(const InetAddress& inetAddress, SOCK_TYPE sockType): m_sockConnectionType(sockType)
     {
-        m_inetAddress = std::make_unique<InetAddress>(inetAddress);
+        m_inetAddress = std::make_shared<InetAddress>(inetAddress);
         m_socketFd = socket(AF_INET,
-                            ((sockType == TCP) ? SOCK_STREAM : SOCK_DGRAM)| SOCK_CLOEXEC,
+                            ((sockType == SOCK_TYPE::TCP) ? SOCK_STREAM : SOCK_DGRAM)| SOCK_CLOEXEC,
                           0);
     }
     virtual ~Socket();
@@ -39,15 +39,22 @@ public:
     int recv(char* msg, int len) const override;
     int recv(std::string& msg) const override;
     int send(const char* msg, int len) const override;
+    std::shared_ptr<InetAddress> getInetAddr() const {
+        return m_inetAddress;
+    }
 
-    bool connect();
+
+    int connect();
     bool isConnected() const;
 
     bool setNonBlocking() const;
 
     void shutDown() override;
 private:
+    int read(int fd, char* buf, int bufSize) const;
+private:
+    SOCK_TYPE m_sockConnectionType = SOCK_TYPE::TCP;
     bool m_isConnected;
     int m_socketFd;
-    std::unique_ptr<InetAddress> m_inetAddress;
+    std::shared_ptr<InetAddress> m_inetAddress;
 };

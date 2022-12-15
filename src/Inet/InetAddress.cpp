@@ -55,8 +55,8 @@ InetAddress::InetAddress(std::string_view host, uint16_t port) {
         if (isdigit(host[0])) {
             memset(&m_addr, 0, sizeof(m_addr));
             m_addr.sin_family = AF_INET;
-            m_addr.sin_port = htons(port);
             m_addr.sin_addr.s_addr = inet_addr(host.data());
+            m_addr.sin_port = htons(port);
         }
         else {
             std::string hostname;
