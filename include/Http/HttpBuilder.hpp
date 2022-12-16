@@ -36,6 +36,7 @@ public:
     virtual void setConnectionStatus(std::string_view connectionStatus);
     virtual void setBody(std::string_view body);
     virtual void addCookie(HttpCookie const& cookie);
+    virtual void addField(std::string_view fieldName, std::string_view fieldValue);
 protected:
     HttpMessage m_httpMessage;
     std::map<std::string, std::string> m_fileExtensionContentType;

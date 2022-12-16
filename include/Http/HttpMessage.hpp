@@ -10,6 +10,14 @@
 #include "HttpVersion.hpp"
 #include "HttpMethod.hpp"
 #include "HttpCookie.hpp"
+#include <vector>
+
+struct Field {
+    Field(std::string_view name, std::string_view value): fieldName(name), fieldValue(value) {};
+
+    std::string fieldName;
+    std::string fieldValue;
+};
 
 struct HttpMessage {
 public:
@@ -29,6 +37,7 @@ public:
     std::string lastModified;
     std::string acceptLanguage;
     std::string acceptEncoding;
+    std::vector<Field> fields;
 
     int statusCode;
     HttpVersion version;

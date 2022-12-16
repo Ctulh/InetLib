@@ -7,9 +7,9 @@
 #include <iomanip>
 
 HttpBuilder::HttpBuilder(): m_fileExtensionContentType({
-                                                                               {".html", "text/html"},
-                                                                               {".css", "text/css"}
-                                                                       }) // TODO load from config
+                                                               {".html", "text/html"},
+                                                               {".css", "text/css"}
+                                                       }) // TODO load from config
 {
     m_statusCodeDescription.insert({200, "OK"});
 }
@@ -97,4 +97,8 @@ void HttpBuilder::setAccept(std::string_view accept) {
 
 void HttpBuilder::setHost(std::string_view host) {
     m_httpMessage.host = host;
+}
+
+void HttpBuilder::addField(std::string_view fieldName, std::string_view fieldValue) {
+    m_httpMessage.fields.emplace_back(fieldName, fieldValue);
 }

@@ -23,4 +23,6 @@ private:
     std::string getAcceptEncodingString() const;
     std::string getAcceptString() const;
     std::string getHostString() const;
+    std::string getFields() const;
+    std::string getContentLengthString(std::string const& body) const;
 };

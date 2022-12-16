@@ -5,6 +5,6 @@
 #pragma once
 
 struct HttpVersion {
-    int major;
-    int minor;
+    int major = 1;
+    int minor = 1;
 };

@@ -8,6 +8,11 @@
 
 std::string HttpRequestBuilder::getResult() const {
     std::stringstream resultString;
+    std::stringstream body;
+
+    body << "{\r\n" <<
+         getFields() <<
+         "}\r\n";
 
     resultString << getMethodString() <<
                  getUriString() <<
@@ -17,10 +22,28 @@ std::string HttpRequestBuilder::getResult() const {
                  getAcceptString() <<
                  getUserAgentString() <<
                  getContentTypeString() <<
+                 getContentLengthString(body.str()) <<
                  getAcceptLanguageString() <<
                  getConnectionString() <<
-                 getCookiesString() << "\r\n";
+                 getCookiesString() <<
+                 body.str();
 
+    return resultString.str();
+}
+
+std::string HttpRequestBuilder::getContentLengthString(std::string const& body) const {
+    std::stringstream resultString;
+    if(!body.empty()) {
+        resultString << "Content-Length: " << std::to_string(body.size()) << "\r\n";
+    }
+    return resultString.str();
+}
+
+std::string HttpRequestBuilder::getFields() const {
+    std::stringstream resultString;
+    for(auto const& el: m_httpMessage.fields) {
+        resultString << '"' << el.fieldName << '"' << ": " << el.fieldValue << "\r\n";
+    }
     return resultString.str();
 }
 
@@ -40,7 +63,7 @@ std::string HttpRequestBuilder::getVersionString() const {
     std::stringstream resultString;
     resultString << "HTTP/";
     if(m_httpMessage.version.major != 0 && m_httpMessage.version.minor != 0)
-         resultString << std::to_string(m_httpMessage.version.major) << '.' << std::to_string(m_httpMessage.version.minor);
+        resultString << std::to_string(m_httpMessage.version.major) << '.' << std::to_string(m_httpMessage.version.minor);
     else
         resultString << "1.1";
     resultString << "\r\n";
