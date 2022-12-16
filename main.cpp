@@ -2,16 +2,12 @@
 
 #include "include/Http/HttpBuilder.hpp"
 #include "HttpRequestBuilder.hpp"
-#include "HttpCookie.hpp"
-#include "Inet/Socket.hpp"
 #include "Inet/TcpConnection.hpp"
-#include "SocketReader/SocketReader.hpp"
 #include "Inet/SocketSSL.hpp"
-#include <sys/socket.h>
-#include <sys/types.h>
 #include <cstring>
-#include <netdb.h>
-#include <arpa/inet.h>
+#include <fstream>
+#include "HttpParser.hpp"
+#include "Utils/JsonParser.hpp"
 
 class XiaomiCloudConnector {
 public:
@@ -25,28 +21,39 @@ public:
 
     bool login() {
 
-        m_requestBuilder.addCookie({.cookieName= "sdkVersion", .cookieValue = "accountsdk-18.8.15", .cookieDomain = "mi.com"});
-        m_requestBuilder.addCookie({.cookieName= "sdkVersion", .cookieValue = "accountsdk-18.8.15", .cookieDomain = "xiaomi.com"});
-        m_requestBuilder.addCookie({.cookieName= "deviceId", .cookieValue = m_deviceId, .cookieDomain = "mi.com"});
-        m_requestBuilder.addCookie({.cookieName= "deviceId", .cookieValue = m_deviceId, .cookieDomain = "xiaomi.com"});
+        //m_requestBuilder.addCookie({.cookieName= "sdkVersion", .cookieValue = "accountsdk-18.8.15", .cookieDomain = "mi.com"});
+     //m_requestBuilder.addCookie({.cookieName= "sdkVersion", .cookieValue = "accountsdk-18.8.15", .cookieDomain = "xiaomi.com"});
+        //m_requestBuilder.
+     //   m_requestBuilder.addCookie({.cookieName= "deviceId", .cookieValue = m_deviceId, .cookieDomain = "xiaomi.com"});
 
-        loginFirstStep();
+        if(loginFirstStep()) {
+            if(loginSecondStep()) {
+
+            }
+        }
     }
 
 private:
 
+    bool loginSecondStep() {
+
+    }
+
     bool loginFirstStep() {
         HttpRequestBuilder builder;
+        //builder.addCookie({.cookieName= "deviceId", .cookieValue = m_deviceId, .cookieDomain = "mi.com"});
+       // builder.addCookie({.cookieName= "sdkVersion", .cookieValue = "accountsdk-18.8.15", .cookieDomain = "mi.com"});
         builder.setHttpMethod(HttpMethod::GET);
         builder.setUri("/pass/serviceLogin?sid=xiaomiio&_json=true");
         builder.setUserAgent(generateAgent());
         builder.setHost("account.xiaomi.com");
         builder.setContentType("application/x-www-form-urlencoded");
-        builder.setAcceptEncoding("gzip, deflate");
+
         builder.setAccept("*/*");
         builder.addCookie({.cookieName = "userId", .cookieValue = "pilnik2016@gmail.com"});
 
         auto request = builder.getResult();
+        std::cout << request << std::endl;
 
         SocketSSL socket({"https://account.xiaomi.com"});
         std::cout << "Connect: " << socket.connect() << std::endl;
@@ -54,6 +61,24 @@ private:
         std::string buf;
         std::cout << "Recv: " << socket.recv(buf) << std::endl;
         std::cout << buf;
+
+        JsonParser jsonParser(buf);
+        if(!jsonParser["_sign"].has_value()) {
+            buf.clear();
+            std::cout << "Recv: " << socket.recv(buf) << std::endl;
+            std::cout << buf;
+            JsonParser jsonParser2(buf);
+            if(jsonParser2["_sign"].has_value()) {
+                std::cout << jsonParser2["_sign"].value();
+                m_sign = jsonParser2["_sign"].value();
+                return true;
+            }
+        }
+        else {
+            std::cout << jsonParser["_sign"].value();
+            m_sign = jsonParser["_sign"].value();
+            return true;
+        }
     }
 
     std::string generateDeviceId() {
@@ -91,6 +116,7 @@ private:
     std::string m_password;
     std::string m_agent;
     std::string m_deviceId;
+    std::string m_sign;
     HttpRequestBuilder m_requestBuilder;
 };
 
@@ -98,6 +124,9 @@ int main() {
 
     std::string login = "pilnik2016@gmail.com";
     std::string password = "egormerser39";
+
+    //JsonParser parser("&&&START&&&{\"serviceParam\":\"{\\\"checkSafePhone\\\":false,\\\"checkSafeAddress\\\":false,\\\"lsrp_score\\\":0.0}\",\"qs\":\"%3Fsid%3Dxiaomiio%26_json%3Dtrue\",\"code\":70016,\"description\":\"登录验证失败\",\"securityStatus\":0,\"_sign\":\"0psXfr43eNI0IX6q9Suk3qWbRqU=\",\"sid\":\"xiaomiio\",\"result\":\"error\",\"captchaUrl\":null,\"callback\":\"https://sts.api.io.mi.com/sts\",\"location\":\"https://account.xiaomi.com/fe/service/login?_json=true&sid=xiaomiio&qs=%253Fsid%253Dxiaomiio%2526_json%253Dtrue&callback=https%3A%2F%2Fsts.api.io.mi.com%2Fsts&_sign=0psXfr43eNI0IX6q9Suk3qWbRqU%3D&serviceParam=%7B%22checkSafePhone%22%3Afalse%2C%22checkSafeAddress%22%3Afalse%2C%22lsrp_score%22%3A0.0%7D&showActiveX=false&theme=&needTheme=false&bizDeviceType=\",\"pwd\":0,\"child\":0,\"desc\":\"登录验证失败\"}");
+    //std::cout << parser["_sign"].value();
 
     auto connector = XiaomiCloudConnector(login, password);
     connector.login();

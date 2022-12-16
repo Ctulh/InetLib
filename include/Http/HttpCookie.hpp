@@ -11,9 +11,7 @@ public:
     std::string getCookieString() const {
         std::stringstream ss;
         if(!cookieName.empty() and !cookieValue.empty())
-            ss << "Cookie: " << cookieName << "=" << cookieValue;
-        if(!cookieDomain.empty())
-            ss << "; " << "Domain=" << cookieDomain;
+            ss << cookieName << "=" << cookieValue << "; ";
         return ss.str();
     }
 public:

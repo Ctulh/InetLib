@@ -62,9 +62,11 @@ std::string HttpRequestBuilder::getContentTypeString() const {
 std::string HttpRequestBuilder::getCookiesString() const {
     std::stringstream resultString;
     if(not m_httpMessage.cookies.empty()) {
+        resultString << "Cookie: ";
         for(auto const& cookie: m_httpMessage.cookies) {
-            resultString << cookie.getCookieString() << "\r\n";
+            resultString << cookie.getCookieString();
         }
+        resultString << "\r\n";
     }
     return resultString.str();
 }
