@@ -2,8 +2,7 @@ set(LIB_NAME UtilsLib)
 
 set(INCLUDE_PATH ${PROJECT_SOURCE_DIR}/include/Utils)
 
-set(HEADERS  ${INCLUDE_PATH}/JsonParser.hpp
-            ${INCLUDE_PATH}/JsonValue.hpp)
+set(HEADERS  ${INCLUDE_PATH}/JsonParser.hpp)
 
 set(SOURCES JsonParser.cpp)
 
