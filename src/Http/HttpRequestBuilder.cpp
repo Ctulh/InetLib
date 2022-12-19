@@ -14,6 +14,10 @@ std::string HttpRequestBuilder::getResult() const {
          getFields() <<
          "}\r\n";
 
+    if(body.str().size() == 6) {
+        body.str("");
+    }
+
     resultString << getMethodString() <<
                  getUriString() <<
                  getVersionString() <<
@@ -26,7 +30,7 @@ std::string HttpRequestBuilder::getResult() const {
                  getAcceptLanguageString() <<
                  getConnectionString() <<
                  getCookiesString() <<
-                 body.str();
+                 body.str() << "\r\n";
 
     return resultString.str();
 }
