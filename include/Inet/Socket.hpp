@@ -39,10 +39,6 @@ public:
     int recv(char* msg, int len) const override;
     int recv(std::string& msg) const override;
     int send(const char* msg, int len) const override;
-    std::shared_ptr<InetAddress> getInetAddr() const {
-        return m_inetAddress;
-    }
-
 
     int connect();
     bool isConnected() const;
@@ -51,7 +47,8 @@ public:
 
     void shutDown() override;
 private:
-    int read(int fd, char* buf, int bufSize) const;
+    int writeToSock(const char* msg, int len) const;
+    int readFromSock(int fd, char* buf, int bufSize) const;
 private:
     SOCK_TYPE m_sockConnectionType = SOCK_TYPE::TCP;
     bool m_isConnected;

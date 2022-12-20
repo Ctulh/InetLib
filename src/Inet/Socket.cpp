@@ -39,7 +39,7 @@ int Socket::connect() {
 }
 
 int Socket::recv(char *msg, int len) const {
-    return read(m_socketFd, msg, len);
+    return readFromSock(m_socketFd, msg, len);
 }
 
 int Socket::recv(std::string &msg) const {
@@ -48,7 +48,7 @@ int Socket::recv(std::string &msg) const {
     for(;;) {
         int result;
         char buf[BUFFER_SIZE];
-        result = read(m_socketFd, buf, BUFFER_SIZE);
+        result = readFromSock(m_socketFd, buf, BUFFER_SIZE);
         if(result == BUFFER_SIZE) {
             total += result;
             msg += buf;
@@ -69,9 +69,18 @@ int Socket::recv(std::string &msg) const {
     return total;
 }
 
-int Socket::read(int fd, char *buf, int bufSize) const{
+int Socket::writeToSock(const char *msg, int len) const {
     if(m_sockConnectionType == SOCK_TYPE::TCP)
-        return read(fd, buf, bufSize);
+        return ::write(m_socketFd, msg, len);
+    else {
+        auto sockAddr = m_inetAddress->getSockAddr();
+        return ::sendto(m_socketFd, msg, len, 0, sockAddr, sizeof(*sockAddr));
+    }
+}
+
+int Socket::readFromSock(int fd, char *buf, int bufSize) const {
+    if(m_sockConnectionType == SOCK_TYPE::TCP)
+        return ::read(fd, buf, bufSize);
     else {
         struct sockaddr_in si_other;
         socklen_t slen = sizeof(si_other);
@@ -80,12 +89,7 @@ int Socket::read(int fd, char *buf, int bufSize) const{
 }
 
 int Socket::send(const char *msg, int len) const {
-    if(m_sockConnectionType == SOCK_TYPE::TCP)
-        return ::write(m_socketFd, msg, len);
-    else {
-        auto sockAddr = m_inetAddress->getSockAddr();
-        return ::sendto(m_socketFd, msg, len, 0, sockAddr, sizeof(*sockAddr));
-    }
+    return writeToSock(msg, len);
 }
 
 int Socket::fd() const {

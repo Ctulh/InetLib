@@ -30,7 +30,8 @@ std::string HttpRequestBuilder::getResult() const {
                  getAcceptLanguageString() <<
                  getConnectionString() <<
                  getCookiesString() <<
-                 body.str() << "\r\n";
+                 body.str() <<
+                 "\r\n";
 
     return resultString.str();
 }

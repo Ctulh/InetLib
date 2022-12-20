@@ -32,7 +32,7 @@ public:
 
     void shutDown() override;
 private:
-    SSL_CTX* initCtx();
+    static SSL_CTX* initCtx();
 
 private:
     std::unique_ptr<InetAddress> m_inetAddress;
