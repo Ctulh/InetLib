@@ -11,9 +11,9 @@ public:
     ~ISocket() = default;
 
 public:
-    virtual int bind() = 0;
-    virtual int listen() = 0;
-    virtual int accept() = 0;
+    virtual int bind() const = 0;
+    virtual int listen() const = 0;
+    virtual int accept() const = 0;
 
     virtual int fd() const = 0;
 

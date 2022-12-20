@@ -30,9 +30,9 @@ public:
     virtual ~Socket();
 
 public:
-    int bind() override;
-    int listen() override;
-    int accept() override;
+    int bind() const override;
+    int listen() const override;
+    int accept() const override;
 
     int fd() const override;
 
@@ -40,7 +40,7 @@ public:
     int recv(std::string& msg) const override;
     int send(const char* msg, int len) const override;
 
-    int connect();
+    int connect() const;
     bool isConnected() const;
 
     bool setNonBlocking() const;

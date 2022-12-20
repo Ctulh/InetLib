@@ -19,10 +19,10 @@ public:
     ~SocketSSL();
 
 public:
-    int connect();
-    int bind() override;
-    int listen() override;
-    int accept() override;
+    int connect() const;
+    int bind() const override;
+    int listen() const override;
+    int accept() const override;
 
     int fd() const override;
 

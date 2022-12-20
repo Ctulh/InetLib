@@ -21,7 +21,7 @@ SocketSSL::~SocketSSL() {
     SSL_CTX_free(m_ctx);
 }
 
-int SocketSSL::connect() {
+int SocketSSL::connect() const {
     auto addr = m_inetAddress->getSockAddr();
     auto result = ::connect(m_socketFd, addr, sizeof(*addr));
     if(result != 0) {
@@ -31,20 +31,20 @@ int SocketSSL::connect() {
 
     SSL_set_fd(m_ssl, m_socketFd);
 
-    if ( SSL_connect(m_ssl) == -1 )   /* perform the connection */
+    if ( SSL_connect(m_ssl) == -1 )
         ERR_print_errors_fp(stderr);
     return result;
 }
 
-int SocketSSL::bind() {
+int SocketSSL::bind() const {
     return ::bind(m_socketFd, (sockaddr*)m_inetAddress->getSockAddr(), sizeof(sockaddr));
 }
 
-int SocketSSL::listen() {
+int SocketSSL::listen() const {
     return ::listen(m_socketFd, SOMAXCONN);
 }
 
-int SocketSSL::accept() {
+int SocketSSL::accept() const {
     socklen_t addrLength = sizeof(sockaddr_in);
     return ::SSL_accept(m_ssl);
 }

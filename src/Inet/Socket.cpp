@@ -21,20 +21,20 @@ Socket::~Socket() {
     shutdown(m_socketFd, 2);
 }
 
-int Socket::accept() {
+int Socket::accept() const {
     socklen_t addrLength = sizeof(sockaddr_in);
     return ::accept ( m_socketFd, (sockaddr*)m_inetAddress->getSockAddr(), &addrLength);
 }
 
-int Socket::listen() {
+int Socket::listen() const {
     return ::listen(m_socketFd, SOMAXCONN);
 }
 
-int Socket::bind() {
+int Socket::bind() const {
     return ::bind(m_socketFd, (sockaddr*)m_inetAddress->getSockAddr(), sizeof(sockaddr));
 }
 
-int Socket::connect() {
+int Socket::connect() const {
     return ::connect(m_socketFd, m_inetAddress->getSockAddr(), sizeof (*m_inetAddress->getSockAddr()));
 }
 
