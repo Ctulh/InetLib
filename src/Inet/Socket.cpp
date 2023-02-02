@@ -107,6 +107,6 @@ void Socket::shutDown() {
 
 bool Socket::setNonBlocking() const {
     int flags = fcntl(m_socketFd, F_GETFL);
-    auto result = fcntl(m_socketFd, F_SETFL,flags | O_NONBLOCK);
+    auto result = fcntl(m_socketFd, F_SETFL, flags | O_NONBLOCK);
     return (result != -1);
 }

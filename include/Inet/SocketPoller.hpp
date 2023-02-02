@@ -24,12 +24,11 @@ public:
     void remove(TcpConnectionPtr);
     void poll();
 
+    void setReceiveMessageOnSocketCallback(ReceiveMessageOnSocketCallback const&);
     void setReceiveMessageCallback(ReceiveMessageCallback const&);
     void setCloseConnectionCallback(CloseConnectionCallback const&);
-    void setSendMessageCallback(SendMessageCallback const&);
-
 private:
-    SendMessageCallback m_sendMessageCallback;
+    ReceiveMessageOnSocketCallback m_receiveMessageOnSocketCallback;
     ReceiveMessageCallback m_receiveMessageCallback;
     CloseConnectionCallback m_closeConnectionCallback;
 

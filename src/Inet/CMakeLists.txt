@@ -30,4 +30,4 @@ target_include_directories(${LIB_NAME} PUBLIC ${INCLUDE_DIR}
 
 
 
-target_link_libraries(${LIB_NAME} PRIVATE "/usr/lib64/libssl.so" "/usr/lib64/libcrypto.so")
+target_link_libraries(${LIB_NAME} PRIVATE "/usr/lib64/libssl.so" "/usr/lib64/libcrypto.so" SocketReaderLib)
