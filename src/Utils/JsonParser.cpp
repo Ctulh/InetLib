@@ -3,32 +3,55 @@
 //
 
 #include "JsonParser.hpp"
+#include <stack>
 
 JsonParser::JsonParser(const std::string &jsonString): m_jsonString(jsonString) {}
 
 std::optional<std::string> JsonParser::operator[](std::string const& fieldName) {
-    if(m_fieldNameValue.find(fieldName) == m_fieldNameValue.end()) {
-        auto pos = m_jsonString.find(fieldName);
-        if(pos == std::string::npos) {
-            m_fieldNameValue[fieldName] = {};
-            return {};
-        }
+    auto it = m_fieldNameValue.find(fieldName);
+    if(it != m_fieldNameValue.end())
+        return it->second;
 
-        auto beginOfValue = m_jsonString.substr(pos + fieldName.size()).find(':') + pos + fieldName.size() + 1;
-        if(m_jsonString[beginOfValue] == '"')
-            beginOfValue++;
-        auto valueLength = m_jsonString.substr(beginOfValue).find('"');
 
-        if(valueLength == std::string::npos) {
-            m_fieldNameValue[fieldName] = {};
-            return {};
-        }
-
-        if(m_jsonString[beginOfValue+valueLength-1] == '"')
-            valueLength--;
-
-        m_fieldNameValue[fieldName] = m_jsonString.substr(beginOfValue, valueLength);
-        return m_fieldNameValue[fieldName];
+    auto beginPos = m_jsonString.find(fieldName);
+    if(beginPos == std::string::npos) {
+        m_fieldNameValue[fieldName] = {};
+        return {};
     }
-    return m_fieldNameValue[fieldName];
+    beginPos += fieldName.size();
+    beginPos += 2; // because of " and :
+
+    std::stack<char> bracketDuty;
+
+    std::string value;
+    for(auto i = beginPos; i < m_jsonString.size(); i++) {
+        auto symbol = m_jsonString[i];
+        if(symbol == '[') {
+            bracketDuty.push(symbol);
+            continue;
+        }
+        else if(symbol == '"' && !bracketDuty.empty() && bracketDuty.top() == '"') {
+            bracketDuty.pop();
+        }
+        else if(symbol == '"') {
+            bracketDuty.push(symbol);
+        }
+        else if(symbol == ']' && !bracketDuty.empty() && bracketDuty.top() == '[') {
+            bracketDuty.pop();
+        }
+        else if(symbol == ',' && !bracketDuty.empty()) {
+            value += symbol;
+        }
+        else if(symbol == ',' && bracketDuty.empty()) {
+            break;
+        }
+        else  {
+            value += symbol;
+            continue;
+        }
+        if(bracketDuty.empty())
+            break;
+    }
+    m_fieldNameValue[fieldName] = value;
+    return value;
 }
