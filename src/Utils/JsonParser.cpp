@@ -45,7 +45,10 @@ std::optional<std::string> JsonParser::operator[](std::string const& fieldName) 
         else if(symbol == ',' && bracketDuty.empty()) {
             break;
         }
-        else  {
+        else if(symbol == ' ' && (bracketDuty.empty() || bracketDuty.top() =='[')) {
+            continue;
+        }
+        else {
             value += symbol;
             continue;
         }
