@@ -7,6 +7,10 @@
 #include <iostream>
 #include <cstring>
 #include <sys/fcntl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#include "RAIISocketFlagsManipulator.hpp"
 
 namespace {
     constexpr int BUFFER_SIZE = 1024;
@@ -34,15 +38,43 @@ int Socket::bind() const {
     return ::bind(m_socketFd, (sockaddr*)m_inetAddress->getSockAddr(), sizeof(sockaddr));
 }
 
-int Socket::connect() const {
-    return ::connect(m_socketFd, m_inetAddress->getSockAddr(), sizeof (*m_inetAddress->getSockAddr()));
+bool Socket::connect(std::int32_t timeoutSec, std::int32_t timeoutUSec) {
+    int result = -1;
+
+    auto socketConnect = [&]() -> int {
+        return ::connect(m_socketFd, m_inetAddress->getSockAddr(), sizeof(*m_inetAddress->getSockAddr()));
+    };
+
+    if(timeoutSec != -1 || timeoutUSec != -1) {
+        timeval timeout {};
+        if (timeoutSec != -1) {
+            timeout.tv_sec = timeoutSec;
+        }
+        if (timeoutUSec != -1) {
+            timeout.tv_usec = timeoutUSec;
+        }
+        RAIISocketFlagsManipulator<SOL_SOCKET, SO_SNDTIMEO, timeval> flagsManipulator(m_socketFd, timeout);
+
+        result = socketConnect();
+    }
+    else {
+        result = socketConnect();
+    }
+
+    if(result == -1) {
+        m_isConnected = false; //TODO error message reference parameter
+    }
+    else {
+        m_isConnected = true;
+    }
+    return m_isConnected;
 }
 
-int Socket::recv(char *msg, int len) const {
+int Socket::receive(char *msg, int len) const {
     return readFromSock(m_socketFd, msg, len);
 }
 
-int Socket::recv(std::string &msg) const {
+int Socket::receive(std::string &msg) const {
     int total;
 
     for(;;) {

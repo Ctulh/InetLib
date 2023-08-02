@@ -26,8 +26,8 @@ public:
 
     int fd() const override;
 
-    int recv(char* msg, int len) const override;
-    int recv(std::string& msg) const override;
+    int receive(char* msg, int len) const override;
+    int receive(std::string& msg) const override;
     int send(const char* msg, int len) const override;
 
     void shutDown() override;

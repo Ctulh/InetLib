@@ -18,18 +18,18 @@ SocketPoller::SocketPoller(int maxConnections, int timeout): m_maxConnections(ma
 void SocketPoller::add(TcpConnectionPtr connection) {
     struct epoll_event ev;
 
-    ev.data.fd = connection->fd();
+    ev.data.fd = connection->getFd();
     ev.events = EPOLLIN | EPOLLET;
-    if(epoll_ctl(m_epollFd, EPOLL_CTL_ADD, connection->fd(), &ev) == -1) {
-        std::cout << "ERROR Adding epoll: "<< connection->fd() << '\n';
+    if(epoll_ctl(m_epollFd, EPOLL_CTL_ADD, connection->getFd(), &ev) == -1) {
+        std::cout << "ERROR Adding epoll: "<< connection->getFd() << '\n';
     }
-    m_connections.insert(std::pair<int, TcpConnectionPtr>(connection->fd(), connection));
+    m_connections.insert(std::pair<int, TcpConnectionPtr>(connection->getFd(), connection));
 }
 
 void SocketPoller::remove(TcpConnectionPtr connection) {
-    m_connections.erase(connection->fd());
-    if(epoll_ctl(m_epollFd, EPOLL_CTL_DEL, connection->fd(), nullptr) == ENOENT) {
-        std::cout << "ERROR Removing epoll: "<< connection->fd() << '\n';
+    m_connections.erase(connection->getFd());
+    if(epoll_ctl(m_epollFd, EPOLL_CTL_DEL, connection->getFd(), nullptr) == ENOENT) {
+        std::cout << "ERROR Removing epoll: "<< connection->getFd() << '\n';
     }
 }
 

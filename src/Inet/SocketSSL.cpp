@@ -53,7 +53,7 @@ int SocketSSL::fd() const {
     return m_socketFd;
 }
 
-int SocketSSL::recv(std::string &msg) const {
+int SocketSSL::receive(std::string &msg) const {
     int total;
     int result;
 
@@ -79,7 +79,7 @@ int SocketSSL::recv(std::string &msg) const {
     return total;
 }
 
-int SocketSSL::recv(char *msg, int len) const {
+int SocketSSL::receive(char *msg, int len) const {
     return SSL_read(m_ssl, msg, len);
 }
 

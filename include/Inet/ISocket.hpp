@@ -17,8 +17,8 @@ public:
 
     virtual int fd() const = 0;
 
-    virtual int recv(char* msg, int len) const = 0;
-    virtual int recv(std::string& msg) const = 0;
+    virtual int receive(char* msg, int len) const = 0;
+    virtual int receive(std::string& msg) const = 0;
     virtual int send(const char* msg, int len) const = 0;
 
     virtual void shutDown() = 0;

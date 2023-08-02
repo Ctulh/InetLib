@@ -27,19 +27,23 @@ int TcpConnection::send(std::string_view msg) const {
     return m_socket->send(msg.data(), msg.size());
 }
 
-int TcpConnection::recv(char *msg, std::size_t len) const {
-    return m_socket->recv(msg, len);
+int TcpConnection::receive(char *msg, std::size_t len) const {
+    return m_socket->receive(msg, len);
 }
 
-int TcpConnection::recv(std::string &msg) const {
-    return m_socket->recv(msg);
+int TcpConnection::receive(std::string &msg) const {
+    return m_socket->receive(msg);
+}
+
+bool TcpConnection::connect(int32_t timeoutSec, int32_t timeoutUSec) {
+    return m_socket->connect(timeoutSec, timeoutUSec);
 }
 
 TcpConnection::TcpConnection(const InetAddress &inetAddress) {
     m_socket = std::make_unique<Socket>(inetAddress, SOCK_TYPE::TCP);
 }
 
-int TcpConnection::fd() const {
+int TcpConnection::getFd() const {
     return m_socket->fd();
 }
 
@@ -48,5 +52,5 @@ void TcpConnection::shutdown() {
 }
 
 bool TcpConnection::isConnected() const {
-    return m_connected;
+    return m_socket->isConnected();
 }

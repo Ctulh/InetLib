@@ -7,6 +7,8 @@
 #include "InetAddress.hpp"
 #include <memory>
 #include "ISocket.hpp"
+#include <cinttypes>
+
 
 class Socket;
 using SocketPtr = std::shared_ptr<Socket>;
@@ -36,11 +38,11 @@ public:
 
     int fd() const override;
 
-    int recv(char* msg, int len) const override;
-    int recv(std::string& msg) const override;
+    int receive(char* msg, int len) const override;
+    int receive(std::string& msg) const override;
     int send(const char* msg, int len) const override;
 
-    int connect() const;
+    bool connect(std::int32_t timeoutSec = -1, std::int32_t timeoutUSec = -1);
     bool isConnected() const;
 
     bool setNonBlocking() const;

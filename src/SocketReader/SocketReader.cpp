@@ -6,7 +6,7 @@
 
 
 READ_STATUS SocketReader::read(TcpConnectionPtr connection) {
-    auto result = connection->recv(m_buffer);
+    auto result = connection->receive(m_buffer);
     if(result == -1)
         return READ_STATUS::CONNECTION_CLOSED;
     if(result == 0)
@@ -15,7 +15,7 @@ READ_STATUS SocketReader::read(TcpConnectionPtr connection) {
 }
 
 READ_STATUS SocketReader::read(SocketPtr socket) {
-    auto result = socket->recv(m_buffer);
+    auto result = socket->receive(m_buffer);
     if(result == -1)
         return READ_STATUS::CONNECTION_CLOSED;
     if(result == 0)
