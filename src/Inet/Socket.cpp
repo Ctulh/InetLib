@@ -11,6 +11,8 @@
 #include <sys/socket.h>
 
 #include "RAIISocketFlagsManipulator.hpp"
+#include "SocketFlagsManipulator.hpp"
+#include "Error.hpp"
 
 namespace {
     constexpr int BUFFER_SIZE = 1024;
@@ -22,123 +24,123 @@ Socket::Socket(int fd) {
 }
 
 Socket::~Socket() {
-    shutdown(m_socketFd, 2);
+    shutdown(m_socketFd, SHUT_RDWR);
 }
 
-int Socket::accept() const {
+bool Socket::accept() const {
     socklen_t addrLength = sizeof(sockaddr_in);
-    return ::accept ( m_socketFd, (sockaddr*)m_inetAddress->getSockAddr(), &addrLength);
+    int result = ::accept ( m_socketFd, (sockaddr*)m_inetAddress->getSockAddr(), &addrLength);
+    return result != -1;
 }
 
-int Socket::listen() const {
-    return ::listen(m_socketFd, SOMAXCONN);
+bool Socket::listen() const {
+    int result = ::listen(m_socketFd, SOMAXCONN);
+    return result != -1;
 }
 
-int Socket::bind() const {
-    return ::bind(m_socketFd, (sockaddr*)m_inetAddress->getSockAddr(), sizeof(sockaddr));
+bool Socket::bind() const {
+    int result = ::bind(m_socketFd, (sockaddr*)m_inetAddress->getSockAddr(), sizeof(sockaddr));
+    return result != -1;
 }
 
-bool Socket::connect(std::int32_t timeoutSec, std::int32_t timeoutUSec) {
-    int result = -1;
-
-    auto socketConnect = [&]() -> int {
-        return ::connect(m_socketFd, m_inetAddress->getSockAddr(), sizeof(*m_inetAddress->getSockAddr()));
-    };
-
-    if(timeoutSec != -1 || timeoutUSec != -1) {
-        timeval timeout {};
-        if (timeoutSec != -1) {
-            timeout.tv_sec = timeoutSec;
-        }
-        if (timeoutUSec != -1) {
-            timeout.tv_usec = timeoutUSec;
-        }
-        RAIISocketFlagsManipulator<SOL_SOCKET, SO_SNDTIMEO, timeval> flagsManipulator(m_socketFd, timeout);
-
-        result = socketConnect();
-    }
-    else {
-        result = socketConnect();
-    }
-
-    if(result == -1) {
-        m_isConnected = false; //TODO error message reference parameter
-    }
-    else {
-        m_isConnected = true;
-    }
-    return m_isConnected;
-}
-
-int Socket::receive(char *msg, int len) const {
-    return readFromSock(m_socketFd, msg, len);
-}
-
-int Socket::receive(std::string &msg) const {
-    int total;
-
-    for(;;) {
-        int result;
-        char buf[BUFFER_SIZE];
-        result = readFromSock(m_socketFd, buf, BUFFER_SIZE);
-        if(result == BUFFER_SIZE) {
-            total += result;
-            msg += buf;
-            continue;
-        }
-        else if(result == 0)
-            return total;
-        else if(result == -1) {
-            std::cout << std::strerror(errno) << '\n';
-            return total;
-        }
-        else if(result < BUFFER_SIZE) {
-            total += result;
-            msg += buf;
-            break;
-        }
-    }
-    return total;
-}
-
-int Socket::writeToSock(const char *msg, int len) const {
-    if(m_sockConnectionType == SOCK_TYPE::TCP)
-        return ::write(m_socketFd, msg, len);
-    else {
-        auto sockAddr = m_inetAddress->getSockAddr();
-        return ::sendto(m_socketFd, msg, len, 0, sockAddr, sizeof(*sockAddr));
-    }
-}
-
-int Socket::readFromSock(int fd, char *buf, int bufSize) const {
-    if(m_sockConnectionType == SOCK_TYPE::TCP)
-        return ::read(fd, buf, bufSize);
-    else {
-        struct sockaddr_in si_other;
-        socklen_t slen = sizeof(si_other);
-        return ::recvfrom(m_socketFd, buf, bufSize, 0,  (struct sockaddr *) &si_other, &slen);
-    }
-}
-
-int Socket::send(const char *msg, int len) const {
-    return writeToSock(msg, len);
-}
-
-int Socket::fd() const {
+int Socket::nativeHandle() const {
     return m_socketFd;
 }
 
-bool Socket::isConnected() const {
-    return m_isConnected;
-}
-
-void Socket::shutDown() {
+bool Socket::shutDown(int how) {
     m_isConnected = false;
-    close(m_socketFd);
+    int result = ::shutdown(m_socketFd, how);
+    if(result != -1) {
+        setError();
+    }
+    return result != -1;
 }
 
-bool Socket::setNonBlocking() const {
+bool Socket::setNonBlocking() {
+    int flags = getFlags();
+    int result = fcntl(m_socketFd, F_SETFL, flags | O_NONBLOCK);
+    if(result == -1) {
+        setError();
+        return false;
+    }
+    return true;
+}
+
+bool Socket::isNonBlocking() const {
+    int flags = getFlags();
+    if(flags == -1)
+        return false;
+    if((flags & O_NONBLOCK) == 0)
+        return false;
+    return true;
+}
+
+int Socket::getFlags() const {
     int flags = fcntl(m_socketFd, F_GETFL);
-    auto result = fcntl(m_socketFd, F_SETFL, flags | O_NONBLOCK);
-    return (result != -1);
+    if(flags == -1)
+        setError();
+    return flags;
+}
+
+bool Socket::setFlag(int flag, bool shouldEnable) {
+    int flags = getFlags();
+    if(flags == -1) {
+        return false;
+    }
+    if(shouldEnable) {
+        flags = flags | flag;
+    }
+    else {
+        flags = flags & ~flag;
+    }
+    return setFlags(flags);
+}
+
+bool Socket::setFlags(int flags) {
+    int result = ::fcntl(m_socketFd, F_SETFL, flags);
+    if(result == -1) {
+        setError();
+        return false;
+    }
+    return true;
+}
+
+bool Socket::setConnectTimeout(std::chrono::milliseconds connectTimeout) {
+    return setSendTimeout(connectTimeout);
+}
+
+bool Socket::setSendTimeout(std::chrono::milliseconds sendTimeout) {
+    timeval timeout {};
+    unsigned int count = sendTimeout.count();
+    timeout.tv_sec = count / 1000;
+    timeout.tv_usec = count % 1000;
+    bool result = SocketFlagsManipulator<SOL_SOCKET, SO_SNDTIMEO, timeval>::setFlag(m_socketFd, timeout);
+    if(!result) {
+        setError();
+    }
+    return result;
+}
+
+bool Socket::setReceiveTimeout(std::chrono::milliseconds receiveTimeout) {
+    timeval timeout {};
+    unsigned int count = receiveTimeout.count();
+    timeout.tv_sec = count / 1000;
+    timeout.tv_usec = count % 1000;
+    bool result = SocketFlagsManipulator<SOL_SOCKET, SO_RCVTIMEO, timeval>::setFlag(m_socketFd, timeout);
+    if(!result) {
+        setError();
+    }
+    return result;
+}
+
+void Socket::setError() const {
+    m_lastError = Error::getLastError();
+}
+
+int Socket::getLastError() const {
+    return m_lastError;
+}
+
+InetAddress Socket::getInetAddress() const {
+    return *m_inetAddress;
 }

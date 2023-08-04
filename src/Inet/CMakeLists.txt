@@ -5,7 +5,7 @@ set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/Inet)
 set(HEADERS ${INCLUDE_DIR}/InetAddress.hpp
             ${INCLUDE_DIR}/Socket.hpp
             ${INCLUDE_DIR}/TcpServer.hpp
-            ${INCLUDE_DIR}/TcpConnection.hpp
+            ${INCLUDE_DIR}/StreamSocket.hpp
             ${INCLUDE_DIR}/ConnectionAcceptor.hpp
             ${INCLUDE_DIR}/callbacks.hpp
             ${INCLUDE_DIR}/SocketPoller.hpp
@@ -15,7 +15,7 @@ set(HEADERS ${INCLUDE_DIR}/InetAddress.hpp
 set(SOURCES InetAddress.cpp
             Socket.cpp
             SocketSSL.cpp
-            TcpConnection.cpp
+            StreamSocket.cpp
             ConnectionAcceptor.cpp
             SocketPoller.cpp
         )

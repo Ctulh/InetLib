@@ -15,21 +15,21 @@ SocketPoller::SocketPoller(int maxConnections, int timeout): m_maxConnections(ma
     m_epollFd = epoll_create(maxConnections);
 }
 
-void SocketPoller::add(TcpConnectionPtr connection) {
+void SocketPoller::add(StreamSocketPtr connection) {
     struct epoll_event ev;
 
-    ev.data.fd = connection->getFd();
+    ev.data.fd = connection->nativeHandle();
     ev.events = EPOLLIN | EPOLLET;
-    if(epoll_ctl(m_epollFd, EPOLL_CTL_ADD, connection->getFd(), &ev) == -1) {
-        std::cout << "ERROR Adding epoll: "<< connection->getFd() << '\n';
+    if(epoll_ctl(m_epollFd, EPOLL_CTL_ADD, connection->nativeHandle(), &ev) == -1) {
+        std::cout << "ERROR Adding epoll: "<< connection->nativeHandle() << '\n';
     }
-    m_connections.insert(std::pair<int, TcpConnectionPtr>(connection->getFd(), connection));
+    m_connections.insert(std::pair<int, StreamSocketPtr>(connection->nativeHandle(), connection));
 }
 
-void SocketPoller::remove(TcpConnectionPtr connection) {
-    m_connections.erase(connection->getFd());
-    if(epoll_ctl(m_epollFd, EPOLL_CTL_DEL, connection->getFd(), nullptr) == ENOENT) {
-        std::cout << "ERROR Removing epoll: "<< connection->getFd() << '\n';
+void SocketPoller::remove(StreamSocketPtr connection) {
+    m_connections.erase(connection->nativeHandle());
+    if(epoll_ctl(m_epollFd, EPOLL_CTL_DEL, connection->nativeHandle(), nullptr) == ENOENT) {
+        std::cout << "ERROR Removing epoll: "<< connection->nativeHandle() << '\n';
     }
 }
 

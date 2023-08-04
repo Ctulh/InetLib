@@ -21,7 +21,7 @@ SocketSSL::~SocketSSL() {
     SSL_CTX_free(m_ctx);
 }
 
-int SocketSSL::connect() const {
+bool SocketSSL::connect() const {
     auto addr = m_inetAddress->getSockAddr();
     auto result = ::connect(m_socketFd, addr, sizeof(*addr));
     if(result != 0) {
@@ -36,24 +36,24 @@ int SocketSSL::connect() const {
     return result;
 }
 
-int SocketSSL::bind() const {
+bool SocketSSL::bind() const {
     return ::bind(m_socketFd, (sockaddr*)m_inetAddress->getSockAddr(), sizeof(sockaddr));
 }
 
-int SocketSSL::listen() const {
+bool SocketSSL::listen() const {
     return ::listen(m_socketFd, SOMAXCONN);
 }
 
-int SocketSSL::accept() const {
+bool SocketSSL::accept() const {
     socklen_t addrLength = sizeof(sockaddr_in);
     return ::SSL_accept(m_ssl);
 }
 
-int SocketSSL::fd() const {
+int SocketSSL::nativeHandle() const {
     return m_socketFd;
 }
 
-int SocketSSL::receive(std::string &msg) const {
+/*int SocketSSL::receive(std::string &msg) const {
     int total;
     int result;
 
@@ -87,8 +87,8 @@ int SocketSSL::send(const char *msg, int len) const {
     auto result = SSL_write(m_ssl, msg, len);
     return result;
 }
-
-void SocketSSL::shutDown() {
+*/
+bool SocketSSL::shutDown(int how) {
     close(m_socketFd);
 }
 

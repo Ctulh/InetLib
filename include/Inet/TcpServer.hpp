@@ -5,7 +5,7 @@
 #pragma once
 
 #include "InetAddress.hpp"
-#include "TcpConnection.hpp"
+#include "StreamSocket.hpp"
 #include "ConnectionAcceptor.hpp"
 #include "SocketReader/SocketReader.hpp"
 #include "Strategy.hpp"

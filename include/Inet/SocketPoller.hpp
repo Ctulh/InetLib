@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "TcpConnection.hpp"
+#include "StreamSocket.hpp"
 
 #include <sys/epoll.h>
 #include <map>
@@ -20,8 +20,8 @@ public:
     SocketPoller(int maxConnections, int timeout);
     ~SocketPoller();
 public:
-    void add(TcpConnectionPtr);
-    void remove(TcpConnectionPtr);
+    void add(StreamSocketPtr);
+    void remove(StreamSocketPtr);
     void poll();
 
     void setReceiveMessageOnSocketCallback(ReceiveMessageOnSocketCallback const&);
@@ -36,5 +36,5 @@ private:
     int m_maxConnections;
     int m_timeout;
     std::vector<epoll_event> m_epollEvents;
-    std::map<int, TcpConnectionPtr> m_connections;
+    std::map<int, StreamSocketPtr> m_connections;
 };

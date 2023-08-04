@@ -7,14 +7,14 @@
 #include <functional>
 #include <memory>
 
-class TcpConnection;
+class StreamSocket;
 class SocketReader;
 
-using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
+using StreamSocketPtr = std::shared_ptr<StreamSocket>;
 using SocketReaderPtr = std::shared_ptr<SocketReader>;
 
 using ReceiveMessageCallback = std::function<void(std::string const&)>;
-using ReceiveMessageOnSocketCallback = std::function<void(TcpConnectionPtr, SocketReaderPtr)>;
-using SendMessageCallback = std::function<void(TcpConnectionPtr)>;
+using ReceiveMessageOnSocketCallback = std::function<void(StreamSocketPtr, SocketReaderPtr)>;
+using SendMessageCallback = std::function<void(StreamSocketPtr)>;
 using ReceiveConnectionCallback = std::function<void(int)>;
-using CloseConnectionCallback = std::function<void(TcpConnectionPtr)>;
+using CloseConnectionCallback = std::function<void(StreamSocketPtr)>;

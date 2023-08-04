@@ -19,18 +19,18 @@ public:
     ~SocketSSL();
 
 public:
-    int connect() const;
-    int bind() const override;
-    int listen() const override;
-    int accept() const override;
+    bool connect() const;
+    bool bind() const override;
+    bool listen() const override;
+    bool accept() const override;
 
-    int fd() const override;
+    int nativeHandle() const override;
 
-    int receive(char* msg, int len) const override;
-    int receive(std::string& msg) const override;
-    int send(const char* msg, int len) const override;
+    //int receive(char* msg, int len) const override;
+    //int receive(std::string& msg) const override;
+    //int send(const char* msg, int len) const override;
 
-    void shutDown() override;
+    bool shutDown(int how) override;
 private:
     static SSL_CTX* initCtx();
 

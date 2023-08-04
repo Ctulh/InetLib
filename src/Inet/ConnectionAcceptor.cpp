@@ -6,7 +6,7 @@
 #include <sys/epoll.h>
 
 ConnectionAcceptor::ConnectionAcceptor(InetAddress const& inetAddress) {
-    m_socket = std::make_unique<Socket>(inetAddress, SOCK_TYPE::TCP);
+    m_socket = std::make_unique<Socket>(inetAddress, SocketType::TCP);
     m_socket->bind();
 
     m_isRunning.test_and_set();
@@ -29,9 +29,9 @@ void ConnectionAcceptor::run() {
 
 void ConnectionAcceptor::stop() {
     m_isRunning.clear();
-    m_socket->shutDown();
+    m_socket->shutDown(SHUT_RDWR);
 }
 
 int ConnectionAcceptor::fd() const {
-    return m_socket->fd();
+    return m_socket->nativeHandle();
 }

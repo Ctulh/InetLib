@@ -8,51 +8,57 @@
 #include <memory>
 #include "ISocket.hpp"
 #include <cinttypes>
-
+#include "SocketType.hpp"
 
 class Socket;
 using SocketPtr = std::shared_ptr<Socket>;
-
-enum class SOCK_TYPE {
-    TCP = 1,
-    UDP = 2
-};
 
 class Socket: public ISocket {
 public:
     explicit Socket(int fd);
 
-    explicit Socket(const InetAddress& inetAddress, SOCK_TYPE sockType): m_sockConnectionType(sockType)
+    explicit Socket(const InetAddress& inetAddress, SocketType sockType): m_sockConnectionType(sockType)
     {
         m_inetAddress = std::make_shared<InetAddress>(inetAddress);
         m_socketFd = socket(AF_INET,
-                            ((sockType == SOCK_TYPE::TCP) ? SOCK_STREAM : SOCK_DGRAM)| SOCK_CLOEXEC,
+                            ((sockType == SocketType::TCP) ? SOCK_STREAM : SOCK_DGRAM)| SOCK_CLOEXEC,
                           0);
     }
-    virtual ~Socket();
+    ~Socket() override;
 
 public:
-    int bind() const override;
-    int listen() const override;
-    int accept() const override;
+    bool bind() const override;
+    bool listen() const override;
+    bool accept() const override;
+  //  bool connect() override;
 
-    int fd() const override;
+    int nativeHandle() const override;
 
-    int receive(char* msg, int len) const override;
-    int receive(std::string& msg) const override;
-    int send(const char* msg, int len) const override;
+   // int receive(char* msg, int len) const override;
+  //  int receive(std::string& msg) const override;
+   // int send(const char* msg, int len) const override;
 
-    bool connect(std::int32_t timeoutSec = -1, std::int32_t timeoutUSec = -1);
-    bool isConnected() const;
+    bool isNonBlocking() const override;
+    bool setNonBlocking() override;
 
-    bool setNonBlocking() const;
+    int getFlags() const override;
+    bool setFlag(int flag, bool shouldEnable) override;
+    bool setFlags(int flags) override;
 
-    void shutDown() override;
+    bool setConnectTimeout(std::chrono::milliseconds connectTimeout) override;
+    bool setSendTimeout(std::chrono::milliseconds sendTimeout) override;
+    bool setReceiveTimeout(std::chrono::milliseconds receiveTimeout) override;
+
+    int getLastError() const override;
+    InetAddress getInetAddress() const override;
+    bool shutDown(int how) override;
+
+protected:
+    void setError() const;
+
 private:
-    int writeToSock(const char* msg, int len) const;
-    int readFromSock(int fd, char* buf, int bufSize) const;
-private:
-    SOCK_TYPE m_sockConnectionType = SOCK_TYPE::TCP;
+    mutable int m_lastError = 0;
+    SocketType m_sockConnectionType = SocketType::TCP;
     bool m_isConnected;
     int m_socketFd;
     std::shared_ptr<InetAddress> m_inetAddress;

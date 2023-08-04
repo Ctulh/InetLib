@@ -7,7 +7,7 @@
 #include <string>
 #include <memory>
 #include "Inet/Socket.hpp"
-#include "Inet/TcpConnection.hpp"
+#include "Inet/StreamSocket.hpp"
 
 enum READ_STATUS {
     GOT_MESSAGE = 1,
@@ -17,8 +17,7 @@ enum READ_STATUS {
 
 class SocketReader {
 public:
-    READ_STATUS read(TcpConnectionPtr connection);
-    READ_STATUS read(SocketPtr socket);
+    READ_STATUS read(StreamSocketPtr connection);
     std::string getBuffer();
     void clear();
 private:

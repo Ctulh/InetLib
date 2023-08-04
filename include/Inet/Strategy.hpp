@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "TcpConnection.hpp"
+#include "StreamSocket.hpp"
 #include "SocketReader/SocketReader.hpp"
 
 class Strategy {
