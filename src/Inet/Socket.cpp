@@ -111,7 +111,7 @@ bool Socket::setConnectTimeout(std::chrono::milliseconds connectTimeout) {
 
 bool Socket::setSendTimeout(std::chrono::milliseconds sendTimeout) {
     timeval timeout {};
-    unsigned int count = sendTimeout.count();
+    long int count = sendTimeout.count();
     timeout.tv_sec = count / 1000;
     timeout.tv_usec = count % 1000;
     bool result = SocketFlagsManipulator<SOL_SOCKET, SO_SNDTIMEO, timeval>::setFlag(m_socketFd, timeout);
@@ -123,7 +123,7 @@ bool Socket::setSendTimeout(std::chrono::milliseconds sendTimeout) {
 
 bool Socket::setReceiveTimeout(std::chrono::milliseconds receiveTimeout) {
     timeval timeout {};
-    unsigned int count = receiveTimeout.count();
+    long int count = receiveTimeout.count();
     timeout.tv_sec = count / 1000;
     timeout.tv_usec = count % 1000;
     bool result = SocketFlagsManipulator<SOL_SOCKET, SO_RCVTIMEO, timeval>::setFlag(m_socketFd, timeout);
