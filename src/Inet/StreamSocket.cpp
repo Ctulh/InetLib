@@ -11,23 +11,23 @@ namespace {
     constexpr uint32_t BUFFER_SIZE = 1024;
 }
 
-ssize_t StreamSocket::send(const char *msg, std::size_t len) const {
-    return ::send(nativeHandle(), msg, len, 0);
+std::size_t StreamSocket::send(const char *msg, std::size_t len) const {
+    return static_cast<size_t>(::send(nativeHandle(), msg, len, 0));
 }
 
-ssize_t StreamSocket::send(std::string_view msg) const {
-    return ::send(nativeHandle(), msg.data(), msg.size(), 0);
+std::size_t StreamSocket::send(std::string_view msg) const {
+    return static_cast<size_t>(::send(nativeHandle(), msg.data(), msg.size(), 0));
 }
 
-ssize_t StreamSocket::send(std::string const& msg) const {
-    return ::send(nativeHandle(), msg.data(), msg.size(), 0);
+std::size_t StreamSocket::send(std::string const& msg) const {
+    return static_cast<size_t>(::send(nativeHandle(), msg.data(), msg.size(), 0));
 }
 
-ssize_t StreamSocket::receive(char *msg, std::size_t len) const {
-    return ::read(nativeHandle(), msg, len);
+std::size_t StreamSocket::receive(char *msg, std::size_t len) const {
+    return static_cast<size_t>(::read(nativeHandle(), msg, len));
 }
 
-ssize_t StreamSocket::receive(std::string &msg) const {
+std::size_t StreamSocket::receive(std::string &msg) const {
     int total;
 
     for(;;) {

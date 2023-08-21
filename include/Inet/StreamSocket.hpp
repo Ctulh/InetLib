@@ -19,11 +19,11 @@ public:
     StreamSocket(int fd): base(fd) {}
 
 public:
-    ssize_t send(const char* msg, std::size_t len) const;
-    ssize_t send(std::string_view msg) const;
-    ssize_t send(std::string const& msg) const;
-    ssize_t receive(char* msg, std::size_t len) const;
-    ssize_t receive(std::string& msg) const;
+    std::size_t send(const char* msg, std::size_t len) const;
+    std::size_t send(std::string_view msg) const;
+    std::size_t send(std::string const& msg) const;
+    std::size_t receive(char* msg, std::size_t len) const;
+    std::size_t receive(std::string& msg) const;
     bool connect() const;
 
 private:
