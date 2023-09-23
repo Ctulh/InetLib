@@ -5,6 +5,8 @@
 #pragma once
 
 #include <string_view>
+#include <cinttypes>
+#include <string>
 
 #ifdef _WIN32
 #else
@@ -23,6 +25,11 @@ public:
 public:
     void setPort(uint16_t);
     const sockaddr* getSockAddr() const;
+
+    std::string getHost() const;
+    uint16_t getPort() const;
 private:
     sockaddr_in m_addr;
+    std::string m_host;
+    uint16_t m_port;
 };

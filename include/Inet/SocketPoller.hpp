@@ -29,7 +29,7 @@ public:
     void setCloseConnectionCallback(CloseConnectionCallback const&);
 private:
     ReceiveMessageOnSocketCallback m_receiveMessageOnSocketCallback;
-    ReceiveMessageCallback m_receiveMessageCallback;
+    std::optional<ReceiveMessageCallback> m_receiveMessageCallback;
     CloseConnectionCallback m_closeConnectionCallback;
 
     int m_epollFd;

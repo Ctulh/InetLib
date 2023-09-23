@@ -22,7 +22,7 @@ public:
         m_inetAddress = std::make_shared<InetAddress>(inetAddress);
         m_socketFd = socket(AF_INET,
                             ((sockType == SocketType::TCP) ? SOCK_STREAM : SOCK_DGRAM)| SOCK_CLOEXEC,
-                          0);
+                            0);
     }
     ~Socket() override;
 
@@ -30,13 +30,13 @@ public:
     bool bind() const override;
     bool listen() const override;
     bool accept() const override;
-  //  bool connect() override;
+    //  bool connect() override;
 
     int nativeHandle() const override;
 
-   // int receive(char* msg, int len) const override;
-  //  int receive(std::string& msg) const override;
-   // int send(const char* msg, int len) const override;
+    // int receive(char* msg, int len) const override;
+    //  int receive(std::string& msg) const override;
+    // int send(const char* msg, int len) const override;
 
     bool isNonBlocking() const override;
     bool setNonBlocking() override;

@@ -16,6 +16,8 @@ SocketPoller::SocketPoller(int maxConnections, int timeout): m_maxConnections(ma
 }
 
 void SocketPoller::add(StreamSocketPtr connection) {
+    if(!connection)
+        return;
     struct epoll_event ev;
 
     ev.data.fd = connection->nativeHandle();
@@ -37,13 +39,11 @@ void SocketPoller::poll() {
     auto readyAmount = epoll_wait(m_epollFd, m_epollEvents.data(), m_maxConnections, m_timeout);
     for(int i = 0; i < readyAmount; i++) {
         if(m_epollEvents[i].events & EPOLLIN) {
-            SocketReaderPtr socketReader = std::make_shared<SocketReader>();
-            auto result = socketReader->read(m_connections[m_epollEvents[i].data.fd]);
-            if(result == READ_STATUS::GOT_MESSAGE) {
-                if (m_receiveMessageOnSocketCallback)
-                    m_receiveMessageOnSocketCallback(m_connections.at(m_epollEvents[i].data.fd), socketReader);
-                if (m_receiveMessageCallback)
-                    m_receiveMessageCallback(socketReader->getBuffer());
+            std::vector<std::byte> msg;
+            auto result = m_connections[m_epollEvents[i].data.fd]->receive(msg);
+            if(result > 0) {
+                if (m_receiveMessageCallback.has_value())
+                    m_receiveMessageCallback.value()(msg, m_connections[m_epollEvents[i].data.fd]);
             }
         }
     }

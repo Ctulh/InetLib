@@ -22,8 +22,10 @@ public:
     std::size_t send(const char* msg, std::size_t len) const;
     std::size_t send(std::string_view msg) const;
     std::size_t send(std::string const& msg) const;
+    std::size_t send(std::vector<std::byte> const& msg) const;
     std::size_t receive(char* msg, std::size_t len) const;
     std::size_t receive(std::string& msg) const;
+    std::size_t receive(std::vector<std::byte>& msg) const;
     bool connect() const;
 
 private:

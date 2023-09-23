@@ -19,6 +19,10 @@ std::size_t StreamSocket::send(std::string_view msg) const {
     return static_cast<size_t>(::send(nativeHandle(), msg.data(), msg.size(), 0));
 }
 
+std::size_t StreamSocket::send(const std::vector<std::byte> &msg) const {
+    return static_cast<std::size_t>(::send(nativeHandle(), msg.data(), msg.size(), 0));
+}
+
 std::size_t StreamSocket::send(std::string const& msg) const {
     return static_cast<size_t>(::send(nativeHandle(), msg.data(), msg.size(), 0));
 }
@@ -27,8 +31,39 @@ std::size_t StreamSocket::receive(char *msg, std::size_t len) const {
     return static_cast<size_t>(::read(nativeHandle(), msg, len));
 }
 
+std::size_t StreamSocket::receive(std::vector<std::byte> &msg) const {
+    int total = 0;
+
+    for(;;) {
+        int result;
+        std::byte buf[BUFFER_SIZE];
+        result = ::read(nativeHandle(), buf, BUFFER_SIZE);
+        if(result == BUFFER_SIZE) {
+            total += result;
+            for(std::size_t i = 0; i < result; ++i) {
+                msg.push_back(buf[i]);
+            }
+            continue;
+        }
+        else if(result == 0)
+            return total;
+        else if(result == -1) {
+            setError();
+            return total;
+        }
+        else if(result < BUFFER_SIZE) {
+            total += result;
+            for(std::size_t i = 0; i < result; ++i) {
+                msg.push_back(buf[i]);
+            }
+            break;
+        }
+    }
+    return total;
+}
+
 std::size_t StreamSocket::receive(std::string &msg) const {
-    int total;
+    int total = 0;
 
     for(;;) {
         int result;
@@ -47,7 +82,9 @@ std::size_t StreamSocket::receive(std::string &msg) const {
         }
         else if(result < BUFFER_SIZE) {
             total += result;
-            msg += buf;
+            for(std::size_t i = 0; i < result; ++i) {
+                msg.push_back(buf[i]);
+            }
             break;
         }
     }
