@@ -43,7 +43,7 @@ void SocketPoller::poll() {
             auto result = m_connections[m_epollEvents[i].data.fd]->receive(msg);
             if(result > 0) {
                 if (m_receiveMessageCallback.has_value())
-                    m_receiveMessageCallback.value()(msg, m_connections[m_epollEvents[i].data.fd]);
+                    m_receiveMessageCallback.value()(m_connections[m_epollEvents[i].data.fd]->getInetAddress(), msg);
             }
         }
     }
